@@ -281,6 +281,7 @@
             btnDot.TabIndex = 21;
             btnDot.Text = ".";
             btnDot.UseVisualStyleBackColor = true;
+            btnDot.Click += btnDot_Click;
             // 
             // button18
             // 
@@ -301,6 +302,7 @@
             btnSign.TabIndex = 19;
             btnSign.Text = "+/-";
             btnSign.UseVisualStyleBackColor = true;
+            btnSign.Click += btnSign_Click;
             // 
             // FormMain
             // 
@@ -331,9 +333,11 @@
             Controls.Add(txtFormula);
             Controls.Add(lblHeader);
             Font = new Font("맑은 고딕", 22.125F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            KeyPreview = true;
             Margin = new Padding(8);
             Name = "FormMain";
             Text = "Calculator v1.0";
+            KeyDown += FormMain_KeyDown;
             ResumeLayout(false);
             PerformLayout();
         }

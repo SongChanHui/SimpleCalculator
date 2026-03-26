@@ -9,6 +9,7 @@ namespace SimpleCalculator
         public FormMain()
         {
             InitializeComponent();
+            this.KeyPreview = true;
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -70,7 +71,7 @@ namespace SimpleCalculator
                 // double 연산에서는 5 / 2 가 2.5로 정확히 계산됩니다. 
                 if (operand2 != 0) result = operand1 / operand2;
             }
-                
+
             // 3. 수식창과 결과창 업데이트 (ToString은 그대로 사용 가능) 
             txtFormula.Text = operand1.ToString() + " " + currentOperator + " " + operand2.ToString() + " = " + result.ToString();
             txtResult.Text = result.ToString();
@@ -148,9 +149,9 @@ namespace SimpleCalculator
 
         private void btnCE_Click(object sender, EventArgs e)
         {
-            txtResult.Text = "0";
+            txtResult.Text = "";  // "0"을 지우고 빈 칸으로 만듭니다.
             isNewInput = true;
-            UpdateRealTimeFormula(); // ★ 추가: 위에 적힌 999도 같이 사라짐
+            UpdateRealTimeFormula();
         }
 
         private void btnDel_Click(object sender, EventArgs e)
@@ -159,12 +160,71 @@ namespace SimpleCalculator
             {
                 txtResult.Text = txtResult.Text.Remove(txtResult.Text.Length - 1);
             }
-            if (string.IsNullOrEmpty(txtResult.Text) || txtResult.Text == "0")
+
+            // "0"으로 강제 설정하는 로직을 제거했습니다.
+            // 마이너스 기호만 남은 경우도 깔끔하게 비워줍니다.
+            if (txtResult.Text == "-") txtResult.Text = "";
+
+            isNewInput = (txtResult.Text == ""); // 칸이 비었으면 새로운 입력 상태로 간주
+            UpdateRealTimeFormula();
+        }
+
+        private void btnDot_Click(object sender, EventArgs e)
+        {
+            if (!txtResult.Text.Contains("."))
             {
-                txtResult.Text = "0";
-                isNewInput = true;
+                txtResult.Text += ".";
+                isNewInput = false;
             }
-            UpdateRealTimeFormula(); // ★ 추가: 지우는 대로 위에도 반영됨 [cite: 587-588]
+            UpdateRealTimeFormula();
+        }
+
+        private void btnSign_Click(object sender, EventArgs e)
+        {
+            if (txtResult.Text != "0")
+            {
+                double val = double.Parse(txtResult.Text); //
+                val = val * -1; // 부호 반전
+                txtResult.Text = val.ToString(); // [cite: 244]
+                UpdateRealTimeFormula();
+            }
+        }
+
+        private void FormMain_KeyDown(object sender, KeyEventArgs e)
+        {
+            // Shift 키를 눌렀는지 확인 (곱하기 '*' 입력을 위해 필요)
+            bool isShift = e.Shift;
+
+            switch (e.KeyCode)
+            {
+                // 숫자 키 (상단 숫자 D0~D9 및 키패드 NumPad0~NumPad9)
+                case Keys.D0: case Keys.NumPad0: button18.PerformClick(); break; // '0' 버튼 이름 반영
+                case Keys.D1: case Keys.NumPad1: btnNum1.PerformClick(); break;
+                case Keys.D2: case Keys.NumPad2: btnNum2.PerformClick(); break;
+                case Keys.D3: case Keys.NumPad3: btnNum3.PerformClick(); break;
+                case Keys.D4: case Keys.NumPad4: btnNum4.PerformClick(); break;
+                case Keys.D5: case Keys.NumPad5: btnNum5.PerformClick(); break;
+                case Keys.D6: case Keys.NumPad6: btnNum6.PerformClick(); break;
+                case Keys.D7: case Keys.NumPad7: btnNum7.PerformClick(); break;
+                case Keys.D8:
+                    if (isShift) btnMulti.PerformClick(); // Shift + 8 = '*' 연산자
+                    else btnNum8.PerformClick();
+                    break;
+                case Keys.D9: case Keys.NumPad9: btnNum9.PerformClick(); break;
+
+                // 연산자 키
+                case Keys.Add: btnPlus.PerformClick(); break;                 // 키패드 +
+                case Keys.Oemplus: btnPlus.PerformClick(); break;              // 메인 키보드 +
+                case Keys.Subtract: case Keys.OemMinus: btnMinus.PerformClick(); break; // -
+                case Keys.Multiply: btnMulti.PerformClick(); break;            // 키패드 *
+                case Keys.Divide: case Keys.OemQuestion: btnDiv.PerformClick(); break; // / 키 (나누기)
+
+                // 기능 키
+                case Keys.Enter: btnEqual.PerformClick(); break;              // '=' 버튼
+                case Keys.Back: btnDel.PerformClick(); break;                 // 백스페이스 (Del)
+                case Keys.Escape: btnC.PerformClick(); break;                 // ESC 키 (C 버튼)
+                case Keys.Decimal: case Keys.OemPeriod: btnDot.PerformClick(); break; // '.' 버튼
+            }
         }
     }
 }
