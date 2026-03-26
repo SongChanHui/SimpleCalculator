@@ -124,6 +124,37 @@ namespace SimpleCalculator
             txtFormula.Text = operand1.ToString() + " ÷ ";
             isNewInput = true;
         }
+
+        private void btnC_Click(object sender, EventArgs e)
+        {
+            operand1 = 0;          // 저장된 첫 번째 숫자 삭제 [cite: 582]
+            currentOperator = "";  // 저장된 연산자 삭제
+            txtFormula.Text = "";  // 수식창(56 +) 삭제
+            txtResult.Text = "0";  // 결과창 삭제
+            isNewInput = true;
+        }
+
+        private void btnCE_Click(object sender, EventArgs e)
+        {
+            txtResult.Text = "0";  // 현재 화면의 숫자(8)만 0으로 바꿈 [cite: 584]
+            isNewInput = true;     // 다음에 숫자를 누르면 0 뒤에 붙지 않고 새로 써지게 함
+        }
+
+        private void btnDel_Click(object sender, EventArgs e)
+        {
+            // 한 글자 이상 있을 때만 마지막 글자를 제거합니다.
+            if (txtResult.Text.Length > 0)
+            {
+                txtResult.Text = txtResult.Text.Remove(txtResult.Text.Length - 1);
+            }
+
+            // 숫자를 다 지워서 빈 칸이 되거나 "0"만 남으면 기본값 "0"을 표시합니다.
+            if (string.IsNullOrEmpty(txtResult.Text) || txtResult.Text == "0")
+            {
+                txtResult.Text = "0";
+                isNewInput = true;
+            }
+        }
     }
 }
     
