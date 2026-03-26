@@ -3,7 +3,7 @@ namespace SimpleCalculator
     public partial class FormMain : Form
     {
 
-        int operand1 = 0;
+        double operand1 = 0;
         string currentOperator = "";
         bool isNewInput = true; // 새로운 숫자를 입력할 준비가 되었는지 확인
         public FormMain()
@@ -24,8 +24,6 @@ namespace SimpleCalculator
         private void btnNum_Click(object sender, EventArgs e)
         {
             Button btn = (Button)sender;
-
-            // 초기 상태(0)거나 새로운 입력 시작이면 지우고 시작
             if (txtResult.Text == "0" || isNewInput)
             {
                 txtResult.Text = btn.Text;
@@ -33,8 +31,9 @@ namespace SimpleCalculator
             }
             else
             {
-                txtResult.Text += btn.Text; // 숫자를 뒤에 붙임
+                txtResult.Text += btn.Text;
             }
+            UpdateRealTimeFormula(); // ★ 추가: 치는 대로 위에 바로 나옴
         }
 
         private void btnPlus_Click(object sender, EventArgs e)
@@ -46,7 +45,7 @@ namespace SimpleCalculator
             }
             else
             {
-                operand1 = int.Parse(txtResult.Text); // 처음 숫자를 저장 [cite: 225]
+                operand1 = double.Parse(txtResult.Text); // 처음 숫자를 저장 [cite: 225]
             }
 
             currentOperator = "+";
@@ -58,47 +57,60 @@ namespace SimpleCalculator
         {
             if (currentOperator == "") return;
 
-            int operand2 = int.Parse(txtResult.Text); // 두 번째 숫자 변환 
-            int result = 0;
+            // 1. int 대신 double을 사용하여 소수점 입력을 허용합니다.
+            double operand2 = double.Parse(txtResult.Text);
+            double result = 0;
 
-            // ★ 이 부분이 빠져있어서 0이 나왔던 겁니다. 모든 연산자를 체크해야 합니다.
+            // 2. 모든 계산을 double 타입으로 수행합니다.
             if (currentOperator == "+") result = operand1 + operand2;
             else if (currentOperator == "-") result = operand1 - operand2;
             else if (currentOperator == "x") result = operand1 * operand2;
             else if (currentOperator == "÷")
             {
-                // 0으로 나누기 방지 및 정수 나눗셈 규칙 적용 
+                // double 연산에서는 5 / 2 가 2.5로 정확히 계산됩니다. 
                 if (operand2 != 0) result = operand1 / operand2;
             }
-
-            // 수식창에 전체 과정(예: 12 - 5 = 7)을 표시합니다
+                
+            // 3. 수식창과 결과창 업데이트 (ToString은 그대로 사용 가능) 
             txtFormula.Text = operand1.ToString() + " " + currentOperator + " " + operand2.ToString() + " = " + result.ToString();
             txtResult.Text = result.ToString();
 
-            operand1 = result; // 계산된 결과를 다음 연산의 시작값으로 저장
-            currentOperator = ""; // 연산자 초기화
+            operand1 = result; // 계산된 실수를 다음 연산을 위해 저장
+            currentOperator = "";
             isNewInput = true;
+        }
+
+        private void UpdateRealTimeFormula()
+        {
+            if (currentOperator != "")
+            {
+                // 예: 25 + 999 처럼 실시간으로 상단에 표시
+                txtFormula.Text = operand1.ToString() + " " + currentOperator + " " + txtResult.Text;
+            }
+            else
+            {
+                txtFormula.Text = txtResult.Text;
+            }
         }
 
         private void PerformCalculation()
         {
-            int operand2 = int.Parse(txtResult.Text); // 현재 화면의 숫자 가져오기 
+            double operand2 = double.Parse(txtResult.Text);
 
             if (currentOperator == "+") operand1 += operand2;
             else if (currentOperator == "-") operand1 -= operand2;
             else if (currentOperator == "x") operand1 *= operand2;
             else if (currentOperator == "÷")
             {
-                if (operand2 != 0) operand1 /= operand2; // 0으로 나누기 방지 및 정수 나눗셈
+                if (operand2 != 0) operand1 /= operand2;
             }
-
-            txtResult.Text = operand1.ToString(); // 계산된 결과를 화면에 표시 
+            txtResult.Text = operand1.ToString();
         }
 
         private void btnMinus_Click(object sender, EventArgs e)
         {
             if (currentOperator != "" && isNewInput == false) PerformCalculation();
-            else operand1 = int.Parse(txtResult.Text);
+            else operand1 = double.Parse(txtResult.Text);
 
             currentOperator = "-";
             txtFormula.Text = operand1.ToString() + " - ";
@@ -108,7 +120,7 @@ namespace SimpleCalculator
         private void btnMulti_Click(object sender, EventArgs e)
         {
             if (currentOperator != "" && isNewInput == false) PerformCalculation();
-            else operand1 = int.Parse(txtResult.Text);
+            else operand1 = double.Parse(txtResult.Text);
 
             currentOperator = "x";
             txtFormula.Text = operand1.ToString() + " x ";
@@ -118,7 +130,7 @@ namespace SimpleCalculator
         private void btnDiv_Click(object sender, EventArgs e)
         {
             if (currentOperator != "" && isNewInput == false) PerformCalculation();
-            else operand1 = int.Parse(txtResult.Text);
+            else operand1 = double.Parse(txtResult.Text);
 
             currentOperator = "÷";
             txtFormula.Text = operand1.ToString() + " ÷ ";
@@ -136,24 +148,23 @@ namespace SimpleCalculator
 
         private void btnCE_Click(object sender, EventArgs e)
         {
-            txtResult.Text = "0";  // 현재 화면의 숫자(8)만 0으로 바꿈 [cite: 584]
-            isNewInput = true;     // 다음에 숫자를 누르면 0 뒤에 붙지 않고 새로 써지게 함
+            txtResult.Text = "0";
+            isNewInput = true;
+            UpdateRealTimeFormula(); // ★ 추가: 위에 적힌 999도 같이 사라짐
         }
 
         private void btnDel_Click(object sender, EventArgs e)
         {
-            // 한 글자 이상 있을 때만 마지막 글자를 제거합니다.
             if (txtResult.Text.Length > 0)
             {
                 txtResult.Text = txtResult.Text.Remove(txtResult.Text.Length - 1);
             }
-
-            // 숫자를 다 지워서 빈 칸이 되거나 "0"만 남으면 기본값 "0"을 표시합니다.
             if (string.IsNullOrEmpty(txtResult.Text) || txtResult.Text == "0")
             {
                 txtResult.Text = "0";
                 isNewInput = true;
             }
+            UpdateRealTimeFormula(); // ★ 추가: 지우는 대로 위에도 반영됨 [cite: 587-588]
         }
     }
 }
