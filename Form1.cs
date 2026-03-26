@@ -39,48 +39,89 @@ namespace SimpleCalculator
 
         private void btnPlus_Click(object sender, EventArgs e)
         {
-            // 1. 이미 연산자가 있고, 숫자가 입력된 상태라면 중간 계산을 먼저 수행합니다.
+            // 이미 연산자가 있고(예: 12 + 상태), 숫자를 더 입력했다면(예: 34 입력)
             if (currentOperator != "" && isNewInput == false)
             {
-                int operand2 = int.Parse(txtResult.Text); // 현재 화면의 숫자(34)를 가져옵니다[cite: 221, 225].
-
-                if (currentOperator == "+")
-                {
-                    operand1 += operand2; // 기존 12에 34를 더해 46으로 만듭니다.
-                }
-                // 과제 2를 위해 -, *, / 등도 같은 방식으로 여기에 추가하면 됩니다[cite: 367, 555].
-
-                txtResult.Text = operand1.ToString(); // 결과인 46을 화면에 보여줍니다[cite: 244, 247].
+                PerformCalculation(); // ★ 위에서 만든 "계산 덩어리"를 실행해라!
             }
             else
             {
-                // 2. 처음 연산자를 누른 경우 (예: 12 입력 후 + 클릭)
-                operand1 = int.Parse(txtResult.Text);
+                operand1 = int.Parse(txtResult.Text); // 처음 숫자를 저장 [cite: 225]
             }
 
             currentOperator = "+";
-            txtFormula.Text = operand1.ToString() + " + "; // 수식창에 "46 + "으로 업데이트합니다.
-            isNewInput = true; // 다음 숫자 입력을 위해 상태를 바꿉니다.
+            txtFormula.Text = operand1.ToString() + " + ";
+            isNewInput = true;
         }
 
         private void btnEqual_Click(object sender, EventArgs e)
         {
             if (currentOperator == "") return;
 
-            int operand2 = int.Parse(txtResult.Text);
+            int operand2 = int.Parse(txtResult.Text); // 두 번째 숫자 변환 
             int result = 0;
 
-            if (currentOperator == "+")
+            // ★ 이 부분이 빠져있어서 0이 나왔던 겁니다. 모든 연산자를 체크해야 합니다.
+            if (currentOperator == "+") result = operand1 + operand2;
+            else if (currentOperator == "-") result = operand1 - operand2;
+            else if (currentOperator == "x") result = operand1 * operand2;
+            else if (currentOperator == "÷")
             {
-                result = operand1 + operand2;
+                // 0으로 나누기 방지 및 정수 나눗셈 규칙 적용 
+                if (operand2 != 0) result = operand1 / operand2;
             }
 
-            // 수식창에 전체 과정(12 + 34 = 46)을 표시합니다[cite: 257, 485].
+            // 수식창에 전체 과정(예: 12 - 5 = 7)을 표시합니다
             txtFormula.Text = operand1.ToString() + " " + currentOperator + " " + operand2.ToString() + " = " + result.ToString();
             txtResult.Text = result.ToString();
 
-            operand1 = result; // 계산된 결과를 다음 연산의 시작값으로 저장합니다.
+            operand1 = result; // 계산된 결과를 다음 연산의 시작값으로 저장
             currentOperator = ""; // 연산자 초기화
+            isNewInput = true;
+        }
+
+        private void PerformCalculation()
+        {
+            int operand2 = int.Parse(txtResult.Text); // 현재 화면의 숫자 가져오기 
+
+            if (currentOperator == "+") operand1 += operand2;
+            else if (currentOperator == "-") operand1 -= operand2;
+            else if (currentOperator == "x") operand1 *= operand2;
+            else if (currentOperator == "÷")
+            {
+                if (operand2 != 0) operand1 /= operand2; // 0으로 나누기 방지 및 정수 나눗셈
+            }
+
+            txtResult.Text = operand1.ToString(); // 계산된 결과를 화면에 표시 
+        }
+
+        private void btnMinus_Click(object sender, EventArgs e)
+        {
+            if (currentOperator != "" && isNewInput == false) PerformCalculation();
+            else operand1 = int.Parse(txtResult.Text);
+
+            currentOperator = "-";
+            txtFormula.Text = operand1.ToString() + " - ";
+            isNewInput = true;
+        }
+
+        private void btnMulti_Click(object sender, EventArgs e)
+        {
+            if (currentOperator != "" && isNewInput == false) PerformCalculation();
+            else operand1 = int.Parse(txtResult.Text);
+
+            currentOperator = "x";
+            txtFormula.Text = operand1.ToString() + " x ";
+            isNewInput = true;
+        }
+
+        private void btnDiv_Click(object sender, EventArgs e)
+        {
+            if (currentOperator != "" && isNewInput == false) PerformCalculation();
+            else operand1 = int.Parse(txtResult.Text);
+
+            currentOperator = "÷";
+            txtFormula.Text = operand1.ToString() + " ÷ ";
             isNewInput = true;
         }
     }
